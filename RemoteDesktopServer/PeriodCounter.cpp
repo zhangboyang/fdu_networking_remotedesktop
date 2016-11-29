@@ -13,7 +13,7 @@ void PeriodCounter::Reset()
 	last = timeGetTime();
 }
 
-int PeriodCounter::IncreseCount(int val)
+int PeriodCounter::IncreaseCount(int val)
 {
 	count += val;
 	DWORD cur = timeGetTime();

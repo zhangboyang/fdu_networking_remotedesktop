@@ -15,12 +15,13 @@ void TCPSender::ThreadProc()
 		const char *buf;
 		size_t len;
 		packet->GetRawData(&buf, &len);
+		assert(*(size_t*)buf + sizeof(MsgPacket::raw_header) == len);
 		conn->SendAll(buf, len);
 		delete packet;
-		if (pktcnt.IncreseCount()) {
+		if (pktcnt.IncreaseCount()) {
 			plog("sender: packet rate at %f.\n", pktcnt.GetCountsPerSecond());
 		}
-		if (bytecnt.IncreseCount(len)) {
+		if (bytecnt.IncreaseCount(len)) {
 			plog("sender: data rate %f MB/s.\n", bytecnt.GetCountsPerSecond() / 1048576.0);
 		}
 	}

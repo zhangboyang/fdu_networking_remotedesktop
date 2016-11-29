@@ -312,6 +312,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\RDServiceConstants.h"
+					>
+				</File>
+				<File
 					RelativePath=".\RDServiceFactory.h"
 					>
 				</File>

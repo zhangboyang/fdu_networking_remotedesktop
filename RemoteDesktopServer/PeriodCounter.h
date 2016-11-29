@@ -7,6 +7,6 @@ class PeriodCounter {
 public:
 	PeriodCounter();
 	void Reset();
-	int IncreseCount(int val = 1);
+	int IncreaseCount(int val = 1);
 	double GetCountsPerSecond();
 };

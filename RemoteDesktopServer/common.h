@@ -14,6 +14,7 @@
 #include "ScreenCapturer.h"
 
 // RemoteDesktopKit
+#include "RDServiceConstants.h"
 #include "RDService.h"
 #include "RDServiceFactory.h"
 #include "RDScreenSender.h"

@@ -38,20 +38,34 @@ void RDScreenSender::ThreadProc()
 
 	timer.Reset(33);
 	int x = 0;
+	int infoflag = 0;
 	PeriodCounter fps;
 	while (!exitflag) {
 		timer.WaitNextFrame();
 		SwapBuffer();
 		scrcap.CaptureFrame(info, bits);
-		int pktcnt = 0;
+		if (!infoflag) {
+			MsgPacket *pkt = new MsgPacket;
+			pkt->AllocBuffer(sizeof(ScrPktHdr) + infosize, RDSERVICE_SCREENSENDER);
+			ScrPktHdr *spkt = (ScrPktHdr *) pkt->LockBuffer();
+			spkt->id = 0;
+			spkt->type = SCRPKT_BITMAPINFO;
+			memcpy(spkt->data, info, infosize);
+			pkt->UnlockBuffer();
+			sendqueue->Append(pkt);
+			infoflag = 1;
+		}
+		int pktcnt = -1;
+		size_t totbytes = 0;
 		for (size_t p = 0; p < bitssize; p += SCRPKT_MAXDATA) {
+			pktcnt++;
 			int datasize = min(bitssize - p, SCRPKT_MAXDATA);
 			if (memcmp((char *) old_bits + p, (char *) bits + p, datasize) == 0) continue;
 			int pktsize = sizeof(ScrPktHdr) + datasize;
 			MsgPacket *pkt = new MsgPacket;
-			pkt->AllocBuffer(pktsize, 0);
+			pkt->AllocBuffer(pktsize, RDSERVICE_SCREENSENDER);
 			ScrPktHdr *spkt = (ScrPktHdr *) pkt->LockBuffer();
-			spkt->id = pktcnt++;
+			spkt->id = pktcnt;
 			int newdatasize = MiniLZO::Instance()->Compress(spkt->data, (char *) bits + p, datasize);
 			if (newdatasize) {
 				spkt->type = SCRPKT_BITMAPDATA_COMPRESSED;
@@ -63,8 +77,22 @@ void RDScreenSender::ThreadProc()
 			pkt->UnlockBuffer();
 			pkt->TruncateBuffer(sizeof(ScrPktHdr) + newdatasize);
 			sendqueue->Append(pkt);
+			totbytes += newdatasize;
 		}
-		if (fps.IncreseCount()) {
+		while (totbytes < SCRFRAME_LOWLIMIT) {
+			int datasize = min(SCRFRAME_LOWLIMIT - totbytes, SCRPKT_MAXDATA);
+			int pktsize = sizeof(ScrPktHdr) + datasize;
+			MsgPacket *pkt = new MsgPacket;
+			pkt->AllocBuffer(pktsize, RDSERVICE_SCREENSENDER);
+			ScrPktHdr *spkt = (ScrPktHdr *) pkt->LockBuffer();
+			memset(spkt, 0, pktsize);
+			spkt->id = 0;
+			spkt->type = SCRPKT_PADDING;
+			pkt->UnlockBuffer();
+			sendqueue->Append(pkt);
+			totbytes += datasize;
+		}
+		if (fps.IncreaseCount()) {
 			plog("screen fps: %.1f\n", fps.GetCountsPerSecond());
 		}
 	}

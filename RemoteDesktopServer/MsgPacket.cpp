@@ -47,8 +47,9 @@ void MsgPacket::UnlockBuffer()
 void MsgPacket::TruncateBuffer(size_t new_size)
 {
 	size_t new_raw_length = new_size + sizeof(raw_header);
-	assert(new_raw_length < raw_length);
+	assert(new_raw_length <= raw_length);
 	raw_length = new_raw_length;
+	((raw_header *)raw_data)->data_length = new_size;
 }
 
 int MsgPacket::LoadHeader(const raw_header *phdr)

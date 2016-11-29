@@ -18,3 +18,16 @@ void FrameTimer::WaitNextFrame()
     }
 	last = cur;
 }
+
+
+bool FrameTimer::IsNextFrame()
+{
+	DWORD cur;
+    cur = timeGetTime();
+	if (cur >= last + interval) {
+		last = cur;
+		return true;
+	} else {
+		return false;
+	}
+}

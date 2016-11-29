@@ -6,4 +6,5 @@ class FrameTimer {
 public:
 	void Reset(int intervalms);
 	void WaitNextFrame();
+	bool IsNextFrame();
 };

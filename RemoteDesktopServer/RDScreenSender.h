@@ -10,17 +10,6 @@ private:
 	void *bits;
 	void *old_bits;
 	void ResetDepth(int depth);
-	struct ScrPktHdr {
-		int type;
-		int id;
-		char data[0];
-	};
-	enum {
-		SCRPKT_BITMAPINFO,
-		SCRPKT_BITMAPDATA,
-		SCRPKT_BITMAPDATA_COMPRESSED,
-	};
-	static const int SCRPKT_MAXDATA = (MAX_MSGPACKETSIZE_SOFT - sizeof(ScrPktHdr));
 	void SwapBuffer();
 public:
 	RDScreenSender(ProducerConsumerQueue<MsgPacket *> *recvqueue, ProducerConsumerQueue<MsgPacket *> *sendqueue);

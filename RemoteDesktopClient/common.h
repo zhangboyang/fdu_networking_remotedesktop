@@ -7,6 +7,10 @@
 #define MAXLINEFMT "%" TOSTR(MAXLINE) "s"
 
 
+#define plog(fmt, ...) printf("LOG: " fmt, ## __VA_ARGS__)
+#define pmsg(fmt, ...) printf("MSG: " fmt, ## __VA_ARGS__)
+
+
 #define fail(fmt, ...) __fail(strrchr("\\" __FILE__, '\\') + 1, __LINE__, __FUNCTION__, fmt, ## __VA_ARGS__)
 static inline void __fail(const char *file, int line, const char *func, const char *fmt, ...)
 {
@@ -21,3 +25,8 @@ static inline void __fail(const char *file, int line, const char *func, const ch
     TerminateProcess(GetCurrentProcess(), 1);
     va_end(ap);
 }
+
+#include "RDServiceConstants.h"
+#include "PeriodCounter.h"
+#include "FrameTimer.h"
+#include "CMiniLZO.h"

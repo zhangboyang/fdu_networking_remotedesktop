@@ -33,7 +33,7 @@ void MiniLZO::AllocBuffer(size_t len)
 }
 
 size_t MiniLZO::Compress(void *out, void *in, size_t in_len)
-{
+{//return 0;
 	assert(in != out);
 	AllocBuffer(in_len + in_len / 16 + 64 + 3);
 	lzo_uint out_len;

@@ -18,6 +18,10 @@ TCPServer::TCPServer(const char *nodename, const char *servname)
     if (srvsocket == INVALID_SOCKET) {
 		fail("socket() failed.");
 	}
+
+	/*BOOL flag = TRUE;
+	int r = setsockopt(srvsocket, IPPROTO_TCP, TCP_NODELAY, (char *) &flag, sizeof(BOOL));
+	assert(r == 0);*/
 }
 
 TCPServer::~TCPServer()
