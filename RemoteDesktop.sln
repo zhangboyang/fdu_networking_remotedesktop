@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RemoteDesktopServer", "RemoteDesktopServer\RemoteDesktopServer.vcproj", "{7DB3FB35-CD41-48A0-A1B2-20C083C003E0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E22E1076-938D-484F-867B-4215DB9F0516} = {E22E1076-938D-484F-867B-4215DB9F0516}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RemoteDesktopClient", "RemoteDesktopClient\RemoteDesktopClient.vcproj", "{DC0C2920-F6C3-4EDA-A05A-753361B5C43A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E22E1076-938D-484F-867B-4215DB9F0516} = {E22E1076-938D-484F-867B-4215DB9F0516}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MiniLZO", "MiniLZO\MiniLZO.vcproj", "{E22E1076-938D-484F-867B-4215DB9F0516}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7DB3FB35-CD41-48A0-A1B2-20C083C003E0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7DB3FB35-CD41-48A0-A1B2-20C083C003E0}.Debug|Win32.Build.0 = Debug|Win32
+		{7DB3FB35-CD41-48A0-A1B2-20C083C003E0}.Release|Win32.ActiveCfg = Release|Win32
+		{7DB3FB35-CD41-48A0-A1B2-20C083C003E0}.Release|Win32.Build.0 = Release|Win32
+		{DC0C2920-F6C3-4EDA-A05A-753361B5C43A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DC0C2920-F6C3-4EDA-A05A-753361B5C43A}.Debug|Win32.Build.0 = Debug|Win32
+		{DC0C2920-F6C3-4EDA-A05A-753361B5C43A}.Release|Win32.ActiveCfg = Release|Win32
+		{DC0C2920-F6C3-4EDA-A05A-753361B5C43A}.Release|Win32.Build.0 = Release|Win32
+		{E22E1076-938D-484F-867B-4215DB9F0516}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E22E1076-938D-484F-867B-4215DB9F0516}.Debug|Win32.Build.0 = Debug|Win32
+		{E22E1076-938D-484F-867B-4215DB9F0516}.Release|Win32.ActiveCfg = Release|Win32
+		{E22E1076-938D-484F-867B-4215DB9F0516}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,34 @@
+#include "stdafx.h"
+#include "common.h"
+
+DWORD WINAPI ThreadHelper::ThreadProcWrapper(LPVOID lpParam)
+{
+	static_cast<ThreadHelper *> (lpParam)->ThreadProc();
+	return 0;
+}
+
+ThreadHelper::ThreadHelper()
+{
+	thread = NULL;
+}
+
+ThreadHelper::~ThreadHelper()
+{
+	assert(thread == NULL);
+	CloseHandle(thread);
+}
+
+void ThreadHelper::StartThread()
+{
+	DWORD tid;
+	assert(thread == NULL);
+	thread = CreateThread(NULL, 0, ThreadProcWrapper, this, 0, &tid);
+}
+
+void ThreadHelper::WaitThread()
+{
+	if (thread) {
+		WaitForSingleObject(thread, INFINITE);
+		thread = NULL;
+	}
+}
