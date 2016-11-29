@@ -5,7 +5,7 @@
 	Name="RemoteDesktopServer"
 	ProjectGUID="{7DB3FB35-CD41-48A0-A1B2-20C083C003E0}"
 	RootNamespace="RemoteDesktopServer"
-	AssemblyReferenceSearchPaths="&quot;..\MiniLZO&quot;"
+	AssemblyReferenceSearchPaths="&quot;..\RemoteDesktopServer&quot;"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
