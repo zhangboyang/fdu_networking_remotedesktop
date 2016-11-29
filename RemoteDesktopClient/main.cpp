@@ -226,7 +226,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 
 	switch (message) {
 	case WM_TIMER:
-		printf("TIMER!\n");
+		//printf("TIMER!\n");
 		TryRedrawScreen(0);
 		break;
     case WM_PAINT:
@@ -350,7 +350,7 @@ int main()
 
 	hdcMemDC = CreateCompatibleDC(GetDC(hWnd));
 
-	int target_period = 1000/30;
+	int target_period = 1000 / SCRFRAME_FPS;
 	SetTimer(hWnd, 0, target_period, NULL);
 	wndupd.Reset(target_period);
 	

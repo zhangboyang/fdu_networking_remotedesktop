@@ -28,4 +28,5 @@ struct ScrPktHdr {
 	char data[0];
 };
 #define SCRPKT_MAXDATA (MAX_MSGPACKETSIZE_SOFT - sizeof(ScrPktHdr))
-#define SCRFRAME_LOWLIMIT (1024 * 1024 * 1 / 30)
+#define SCRFRAME_FPS 60
+#define SCRFRAME_LOWLIMIT (1024 * 1024 * 1 / SCRFRAME_FPS)

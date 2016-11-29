@@ -36,7 +36,7 @@ void RDScreenSender::ThreadProc()
 	recvqueue->SetAppendDisable(true);
 	ResetDepth(16);
 
-	timer.Reset(33);
+	timer.Reset(1000 / SCRFRAME_FPS);
 	int x = 0;
 	int infoflag = 0;
 	PeriodCounter fps;
