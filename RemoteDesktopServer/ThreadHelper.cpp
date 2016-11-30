@@ -15,7 +15,6 @@ ThreadHelper::ThreadHelper()
 ThreadHelper::~ThreadHelper()
 {
 	assert(thread == NULL);
-	CloseHandle(thread);
 }
 
 void ThreadHelper::StartThread()
@@ -29,6 +28,7 @@ void ThreadHelper::WaitThread()
 {
 	if (thread) {
 		WaitForSingleObject(thread, INFINITE);
+		CloseHandle(thread);
 		thread = NULL;
 	}
 }
