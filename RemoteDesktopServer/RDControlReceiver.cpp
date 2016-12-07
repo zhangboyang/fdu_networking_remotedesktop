@@ -18,20 +18,22 @@ void RDControlReceiver::HandleMousePacket(struct CtrlPktHdr *pkt)
 	memset(&mi, 0, sizeof(mi));
 	switch (pkt->type) {
 		case CTRLPKT_MOUSE_MOVE:
-			mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_WHEEL;
+			mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
 			if (pkt->len != 2 * sizeof(int)) {
 				RequestExit();
 				return;
 			}
 			pint = (int *)pkt->data;
-			mi.dx = pint[0];
-			mi.dy = pint[1];
+			SetCursorPos(pint[0], pint[1]);
+			mi.dx = pint[0] * 65535 / GetSystemMetrics(SM_CXSCREEN);
+			mi.dy = pint[1] * 65535 / GetSystemMetrics(SM_CYSCREEN);
+			//plog("mousemove: x=%d y=%d\n", pint[0], pint[1]);
 			break;
 		case CTRLPKT_MOUSE_LEFT: mi.dwFlags = pkt->state ? MOUSEEVENTF_LEFTDOWN : MOUSEEVENTF_LEFTUP; goto mousekey;
 		case CTRLPKT_MOUSE_RIGHT: mi.dwFlags = pkt->state ? MOUSEEVENTF_RIGHTDOWN : MOUSEEVENTF_RIGHTUP; goto mousekey;
 		case CTRLPKT_MOUSE_MID: mi.dwFlags = pkt->state ? MOUSEEVENTF_MIDDLEDOWN : MOUSEEVENTF_MIDDLEUP; goto mousekey;
 		mousekey:
-			plog("mousekey: type=%d state=%d\n", pkt->type, pkt->state);
+			//plog("mousekey: type=%d state=%d\n", pkt->type, pkt->state);
 			break;
 		default: assert(0);
 	}
@@ -43,6 +45,10 @@ void RDControlReceiver::HandleMousePacket(struct CtrlPktHdr *pkt)
 
 void RDControlReceiver::HandleKeyboardPacket(struct CtrlPktHdr *pkt)
 {
+	if (pkt->len == 0) {
+		plog("ignored invalid keyboard packet with zero data length.\n");
+		return;
+	}
 	std::vector<INPUT> elist;
 	for (int r = 0; r <= 1; r++) {
 		DWORD flag = !r ? 0 : KEYEVENTF_KEYUP;
@@ -53,7 +59,7 @@ void RDControlReceiver::HandleKeyboardPacket(struct CtrlPktHdr *pkt)
 			ki.wVk = v;
 			ki.wScan = MapVirtualKey(v, MAPVK_VK_TO_VSC);
 			ki.dwFlags = flag;
-			plog("VK=%d SCAN=%d\n", (int) ki.wVk, (int) ki.wScan);
+			//plog("VK=%d SCAN=%d\n", (int) ki.wVk, (int) ki.wScan);
 			INPUT e;
 			e.type = INPUT_KEYBOARD;
 			e.ki = ki;
@@ -64,7 +70,7 @@ void RDControlReceiver::HandleKeyboardPacket(struct CtrlPktHdr *pkt)
 	SendInput(elist.size(), &elist[0], sizeof(INPUT));
 }
 void RDControlReceiver::DispatchPacket(struct CtrlPktHdr *pkt, size_t len)
-{
+{//return;
 	if (len < sizeof(CtrlPktHdr) || len != sizeof(CtrlPktHdr) + pkt->len) {
 		plog("invalid ctrl pkt len %d\n", (int) len);
 		RequestExit();
