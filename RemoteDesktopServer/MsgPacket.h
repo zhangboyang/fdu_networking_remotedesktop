@@ -13,6 +13,7 @@ public:
 		size_t data_length;
 		int type;
 	};
+	void Dump();
 	int LoadHeader(const raw_header *phdr);
 	void GetRawData(const char **pbuf, size_t *len);
 	void FreeBuffer();
@@ -21,4 +22,5 @@ public:
 	char *LockBuffer();
 	void UnlockBuffer();
 	void TruncateBuffer(size_t new_len);
+	int GetType();
 };

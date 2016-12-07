@@ -9,6 +9,24 @@ MsgPacket::~MsgPacket()
 	assert(!locked);
 	FreeBuffer();
 }
+void MsgPacket::Dump()
+{
+	if (raw_length == 0 || raw_data == NULL) {
+		plog("no buffer allocated.\n");
+	} else {
+		plog("raw length: %d\n", (int) raw_length);
+		char str[16 * 3 + 1];
+		char *ptr = raw_data;
+		while ((unsigned) (ptr - raw_data) < raw_length) {
+			for (int i = 0; i < 16; i++) {
+				if (unsigned (ptr + i - raw_data) >= raw_length) break;
+				sprintf(str + i * 3, "%02X ", (unsigned)(unsigned char)ptr[i]);
+			}
+			ptr += 16;
+			plog(" %s\n", str);
+		}
+	}
+}
 void MsgPacket::GetRawData(const char **pbuf, size_t *len)
 {
 	assert(!locked);
@@ -63,4 +81,9 @@ size_t MsgPacket::GetBufferSize()
 {
 	assert(raw_length >= sizeof(raw_header));
 	return raw_length - sizeof(raw_header);
+}
+
+int MsgPacket::GetType()
+{
+	return ((raw_header *)raw_data)->type;
 }

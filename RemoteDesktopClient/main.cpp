@@ -6,13 +6,14 @@ static SOCKET clisocket;
 
 static HDC hdcMemDC = NULL;
 static HBITMAP hbmScreen = NULL;
-static void Send(const char *data, size_t len);
+static void SendPacket(int type, char *data, size_t len);
 
 struct pkthdr {
 	size_t len;
 	int type;
 	char data[0];
 };
+
 
 static BITMAPINFO *bmpinfo = NULL;
 static size_t bmpinfo_size = 0;
@@ -180,6 +181,7 @@ static void TryRecvData()
 
 
 static std::queue<std::pair<char *, std::pair<size_t, size_t> > > sendqueue; // (ptr, (sent, total))
+
 static void TrySendData()
 {
 	while (!sendqueue.empty()) {
@@ -200,13 +202,25 @@ static void TrySendData()
 		}
 	}
 }
-static void Send(const char *data, size_t len)
+static void SendData(const char *data, size_t len)
 {
 	char *buf = (char *) malloc(len);
 	memcpy(buf, data, len);
 	sendqueue.push(std::make_pair(buf, std::make_pair(0, len)));
 	TrySendData();
 }
+
+static void SendPacket(int type, char *data, size_t len)
+{
+	size_t pktlen = sizeof(pkthdr) + len;
+	pkthdr *pkt = (pkthdr *) malloc(pktlen);
+	memcpy(pkt->data, data, len);
+	pkt->type = type;
+	pkt->len = len;
+	sendqueue.push(std::make_pair((char *)pkt, std::make_pair(0, pktlen)));
+	TrySendData();
+}
+
 
 static void UpdateSocket(DWORD wParam, DWORD lParam)
 {
@@ -248,6 +262,16 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
         break;
 	case WM_USER:
 		UpdateSocket(wParam, lParam);
+		break;
+	case WM_KEYUP:
+		do {
+			size_t pktlen = sizeof(struct CtrlPktHdr) + 1;
+			CtrlPktHdr *pkt = (CtrlPktHdr *) malloc(pktlen);
+			pkt->type = CTRLPKT_KEYBOARD;
+			pkt->kbd.len = 1;
+			pkt->kbd.data[0] = 'A';
+			SendPacket(RDSERVICE_CONTROLRECEIVER, (char *)pkt, pktlen);
+		} while (0);
 		break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);

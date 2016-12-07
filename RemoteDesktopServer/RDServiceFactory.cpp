@@ -11,6 +11,7 @@ RDService *RDServiceFactory::CreateService(int type, ProducerConsumerQueue<MsgPa
 {
 	switch (type) {
 		case RDSERVICE_SCREENSENDER: return new RDScreenSender(recvqueue, sendqueue);
+		case RDSERVICE_CONTROLRECEIVER: return new RDControlReceiver(recvqueue, sendqueue);
 		default: return NULL;
 	}
 }

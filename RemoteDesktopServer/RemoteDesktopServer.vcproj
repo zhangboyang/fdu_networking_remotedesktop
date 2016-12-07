@@ -246,6 +246,10 @@
 				Name="RemoteDesktopKit"
 				>
 				<File
+					RelativePath=".\RDControlReceiver.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\RDScreenSender.cpp"
 					>
 				</File>
@@ -303,6 +307,10 @@
 			<Filter
 				Name="RemoteDesktopKit"
 				>
+				<File
+					RelativePath=".\RDControlReceiver.h"
+					>
+				</File>
 				<File
 					RelativePath=".\RDScreenSender.h"
 					>

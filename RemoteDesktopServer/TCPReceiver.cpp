@@ -26,7 +26,7 @@ void TCPReceiver::ThreadProc()
 		}
 		char *buf = pkt->LockBuffer();
 		ret = conn->RecvAll(buf, pkt->GetBufferSize());
-		int type = *(int *)buf;
+		int type = pkt->GetType();
 		pkt->UnlockBuffer();
 		if (ret < 0) break;
 
@@ -35,6 +35,9 @@ void TCPReceiver::ThreadProc()
 			plog("invalid packet type %d.\n", type);
 			break;
 		}
+		recvqueue.GetIndividualQueue(type)->Append(pkt);
+
+		// set pkt to NULL, since we dispatched the packet
 		pkt = NULL;
 	}
 
