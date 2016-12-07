@@ -29,7 +29,7 @@ struct ScrPktHdr {
 	char data[0];
 };
 #define SCRPKT_MAXDATA (MAX_MSGPACKETSIZE_SOFT - sizeof(ScrPktHdr))
-#define SCRFRAME_FPS 60
+#define SCRFRAME_FPS 30
 #define SCRFRAME_LOWLIMIT (1024 * 1024 * 1 / SCRFRAME_FPS)
 
 
@@ -45,16 +45,7 @@ enum {
 };
 struct CtrlPktHdr {
 	int type;
-	union {
-		struct { // mouse
-			int keystate;
-			int len; // data bytes
-			int	data[0];
-		} mouse;
-		struct { // keyboard
-			int ignored;
-			int len;
-			char data[0];
-		} kbd;
-	};
+	int state;
+	int len;
+	char data[0];
 };

@@ -12,6 +12,7 @@ void TCPSender::ThreadProc()
 	while (1) {
 		MsgPacket *packet;
 		if (sendqueue.Get(&packet) < 0) break;
+		if (!packet) break; // a null pointer means processor thread request quit
 		const char *buf;
 		size_t len;
 		packet->GetRawData(&buf, &len);

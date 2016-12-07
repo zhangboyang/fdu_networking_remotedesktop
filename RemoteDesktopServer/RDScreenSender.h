@@ -12,7 +12,7 @@ private:
 	void ResetDepth(int depth);
 	void SwapBuffer();
 public:
-	RDScreenSender(ProducerConsumerQueue<MsgPacket *> *recvqueue, ProducerConsumerQueue<MsgPacket *> *sendqueue);
+	RDScreenSender(ProducerConsumerQueue<MsgPacket *> *recvqueue, ProducerConsumerQueue<MsgPacket *> *sendqueue, TCPConnection *conn);
 	virtual void ThreadProc();
 	virtual void NotifyClose();
 	virtual ~RDScreenSender();

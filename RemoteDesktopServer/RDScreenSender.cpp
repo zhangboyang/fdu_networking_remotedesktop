@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "common.h"
 
-RDScreenSender::RDScreenSender(ProducerConsumerQueue<MsgPacket *> *recvqueue, ProducerConsumerQueue<MsgPacket *> *sendqueue) : 
-	RDService(recvqueue, sendqueue),
+RDScreenSender::RDScreenSender(ProducerConsumerQueue<MsgPacket *> *recvqueue, ProducerConsumerQueue<MsgPacket *> *sendqueue, TCPConnection *conn) : 
+	RDService(recvqueue, sendqueue, conn),
 	exitflag(0),
 	info(NULL),
 	bits(NULL),

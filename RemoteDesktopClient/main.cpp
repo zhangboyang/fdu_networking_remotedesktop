@@ -268,8 +268,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			size_t pktlen = sizeof(struct CtrlPktHdr) + 1;
 			CtrlPktHdr *pkt = (CtrlPktHdr *) malloc(pktlen);
 			pkt->type = CTRLPKT_KEYBOARD;
-			pkt->kbd.len = 1;
-			pkt->kbd.data[0] = 'A';
+			pkt->len = 1;
+			pkt->data[0] = 0x41;
 			SendPacket(RDSERVICE_CONTROLRECEIVER, (char *)pkt, pktlen);
 		} while (0);
 		break;

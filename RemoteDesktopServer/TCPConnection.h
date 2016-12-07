@@ -12,7 +12,6 @@ private:
 	TCPReceiver *receiver;
 	int closing;
 	RDService *service[RDSERVICE_MAX];
-	void Close();
 	int SendAll(const char *data, size_t len);
 	int RecvAll(char *data, size_t len);
 	int WaitEvent(HANDLE e);
@@ -21,4 +20,5 @@ public:
 	TCPConnection(SOCKET clisocket);
 	~TCPConnection();
 	void DoModal();
+	void Close();
 };

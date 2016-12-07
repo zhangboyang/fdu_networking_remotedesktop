@@ -6,7 +6,7 @@ TCPConnection::TCPConnection(SOCKET clisocket) : clisocket(clisocket), closing(0
 	sender = new TCPSender(this);
 	receiver = new TCPReceiver(this);
 	for (int i = 0; i < RDSERVICE_MAX; i++) {
-		service[i] = RDServiceFactory::Instance()->CreateService(i, receiver->GetServiceRecvQueue(i), sender->GetServiceSendQueue(i));
+		service[i] = RDServiceFactory::Instance()->CreateRDService(i, receiver->GetServiceRecvQueue(i), sender->GetServiceSendQueue(i), this);
 		assert(service[i]);
 	}
 }

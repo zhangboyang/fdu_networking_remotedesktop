@@ -1,9 +1,10 @@
 #pragma once
 
+class TCPConnection;
 class RDServiceFactory {
 public:
 	static RDServiceFactory *Instance();
-	RDService *CreateService(int type, ProducerConsumerQueue<MsgPacket *> *recvqueue, ProducerConsumerQueue<MsgPacket *> *sendqueue);
+	RDService *CreateRDService(int type, ProducerConsumerQueue<MsgPacket *> *recvqueue, ProducerConsumerQueue<MsgPacket *> *sendqueue, TCPConnection *conn);
 private:
 	RDServiceFactory();
 	~RDServiceFactory();
