@@ -263,7 +263,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	case WM_USER:
 		UpdateSocket(wParam, lParam);
 		break;
-	case WM_KEYUP:
+	/*case WM_KEYUP:
 		do {
 			size_t pktlen = sizeof(struct CtrlPktHdr) + 1;
 			CtrlPktHdr *pkt = (CtrlPktHdr *) malloc(pktlen);
@@ -272,7 +272,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			pkt->data[0] = 0x41;
 			SendPacket(RDSERVICE_CONTROLRECEIVER, (char *)pkt, pktlen);
 		} while (0);
-		break;
+		break;*/
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
@@ -324,7 +324,7 @@ int main()
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
 	static TCHAR szWindowClass[] = _T("win32app");
-	static TCHAR szTitle[] = _T("Remote Desktop Client");
+	static TCHAR szTitle[] = _T("Remote Desktop Client (view only)");
 
 	WNDCLASSEX wcex;
 
@@ -364,9 +364,12 @@ int main()
 		fail("CreateWindow() failed.");
 	}
 
-
 	// register socket to window
 	WSAAsyncSelect(clisocket, hWnd, WM_USER, FD_READ | FD_WRITE | FD_CLOSE);
+
+	// send password
+	char psw[] = "123456";
+	SendPacket(RDSERVICE_PASSWORD, psw, strlen(psw));
 
 	// show windows and pump message
 	ShowWindow(hWnd, TRUE);

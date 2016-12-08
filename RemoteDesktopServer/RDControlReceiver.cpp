@@ -45,29 +45,23 @@ void RDControlReceiver::HandleMousePacket(struct CtrlPktHdr *pkt)
 
 void RDControlReceiver::HandleKeyboardPacket(struct CtrlPktHdr *pkt)
 {
-	if (pkt->len == 0) {
-		plog("ignored invalid keyboard packet with zero data length.\n");
+	if (pkt->len != 1) {
+		plog("ignored invalid keyboard packet\n");
 		return;
 	}
-	std::vector<INPUT> elist;
-	for (int r = 0; r <= 1; r++) {
-		DWORD flag = !r ? 0 : KEYEVENTF_KEYUP;
-		for (int i = 0; i < pkt->len; i++) {
-			UINT v = pkt->data[i];
-			KEYBDINPUT ki;
-			memset(&ki, 0, sizeof(ki));
-			ki.wVk = v;
-			ki.wScan = MapVirtualKey(v, MAPVK_VK_TO_VSC);
-			ki.dwFlags = flag;
-			//plog("VK=%d SCAN=%d\n", (int) ki.wVk, (int) ki.wScan);
-			INPUT e;
-			e.type = INPUT_KEYBOARD;
-			e.ki = ki;
-			elist.push_back(e);
-		}
-	}
-	plog("kbd input: count=%d\n", (int)elist.size());
-	SendInput(elist.size(), &elist[0], sizeof(INPUT));
+
+	UINT v = pkt->data[0];
+	KEYBDINPUT ki;
+	memset(&ki, 0, sizeof(ki));
+	ki.wVk = v;
+	ki.wScan = MapVirtualKey(v, MAPVK_VK_TO_VSC);
+	ki.dwFlags = pkt->state ? 0 : KEYEVENTF_KEYUP;
+	//plog("VK=%d SCAN=%d\n", (int) ki.wVk, (int) ki.wScan);
+	INPUT e;
+	e.type = INPUT_KEYBOARD;
+	e.ki = ki;
+
+	SendInput(1, &e, sizeof(INPUT));
 }
 void RDControlReceiver::DispatchPacket(struct CtrlPktHdr *pkt, size_t len)
 {//return;

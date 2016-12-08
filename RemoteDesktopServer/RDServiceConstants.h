@@ -6,8 +6,13 @@ enum {
 	RDSERVICE_SCREENSENDER,
 	RDSERVICE_CONTROLRECEIVER,
 
-	RDSERVICE_MAX // EOF
+	RDSERVICE_MAX, // EOF
+
+	RDSERVICE_PASSWORD = -1, // the is a special packet type
 };
+
+// password
+#define rdpsw "123456"
 
 
 #define MAX_MSGPACKETSIZE_HARD 16384 // datasize
@@ -28,6 +33,7 @@ struct ScrPktHdr {
 	int id;
 	char data[0];
 };
+
 #define SCRPKT_MAXDATA (MAX_MSGPACKETSIZE_SOFT - sizeof(ScrPktHdr))
 #define SCRFRAME_FPS 30
 #define SCRFRAME_LOWLIMIT (1024 * 1024 * 1 / SCRFRAME_FPS)

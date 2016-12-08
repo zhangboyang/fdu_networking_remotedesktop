@@ -29,6 +29,10 @@ TCPConnection::~TCPConnection()
 
 void TCPConnection::DoModal()
 {
+	if (!receiver->DoAuth()) {
+		return;
+	}
+
 	for (int i = 0; i < RDSERVICE_MAX; i++) {
 		service[i]->StartThread();
 	}

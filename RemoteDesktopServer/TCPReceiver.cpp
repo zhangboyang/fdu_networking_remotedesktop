@@ -5,30 +5,59 @@ TCPReceiver::TCPReceiver(TCPConnection *conn) : conn(conn), recvqueue(RDSERVICE_
 {
 }
 
+bool TCPReceiver::DoAuth()
+{
+	plog("wait for password ...\n");
+	MsgPacket *pkt = RecvPacket();
+	if (!pkt) return false;
+	char *clipsw = pkt->LockBuffer();
+	bool result = pkt->GetBufferSize() == strlen(rdpsw) && strncmp(clipsw, rdpsw, strlen(rdpsw)) == 0;
+	pkt->UnlockBuffer();
+	delete pkt;
+	if (!result) {
+		plog("wrong password, closing.\n");
+	}
+	return result;
+}
+
+MsgPacket *TCPReceiver::RecvPacket()
+{
+	MsgPacket *pkt = NULL, *ret = NULL;
+	MsgPacket::raw_header pkthdr;
+
+	int r = conn->RecvAll((char *)&pkthdr, sizeof(MsgPacket::raw_header));
+	if (r < 0) goto done;
+
+	// receive data
+	pkt = new MsgPacket;
+	if (pkt->LoadHeader(&pkthdr) < 0) {
+		plog("invalid packet header.\n");
+		goto done;
+	}
+
+	char *buf = pkt->LockBuffer();
+	r = conn->RecvAll(buf, pkt->GetBufferSize());
+	pkt->UnlockBuffer();
+	
+	if (r < 0) goto done;
+	ret = pkt;
+
+done:
+	if (ret) return ret;
+	if (pkt) delete pkt;
+	return NULL;
+}
+
 void TCPReceiver::ThreadProc()
 {
 	plog("receiver thread created.\n");
 	MsgPacket *pkt = NULL;
 
 	while (1) {
-		// FIXME: raw_header
-		// receive data length
-		MsgPacket::raw_header pkthdr;
+		pkt = RecvPacket();
+		if (!pkt) break;
 
-		int ret = conn->RecvAll((char *)&pkthdr, sizeof(MsgPacket::raw_header));
-		if (ret < 0) break;
-
-		// receive data
-		pkt = new MsgPacket;
-		if (pkt->LoadHeader(&pkthdr) < 0) {
-			plog("invalid packet header.\n");
-			break;
-		}
-		char *buf = pkt->LockBuffer();
-		ret = conn->RecvAll(buf, pkt->GetBufferSize());
 		int type = pkt->GetType();
-		pkt->UnlockBuffer();
-		if (ret < 0) break;
 
 		// dispatch packet
 		if (type < 0 || type >= RDSERVICE_MAX) {

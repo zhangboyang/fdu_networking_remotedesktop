@@ -9,4 +9,6 @@ private:
 	void NotifyClose();
 	TCPReceiver(TCPConnection *conn);
 	ProducerConsumerQueue<MsgPacket *> *GetServiceRecvQueue(int id);
+	bool DoAuth();
+	MsgPacket *RecvPacket();
 };
