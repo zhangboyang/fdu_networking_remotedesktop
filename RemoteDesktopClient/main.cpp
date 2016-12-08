@@ -105,7 +105,7 @@ static void HandlePacket(pkthdr *pkt)
 {
 	switch (pkt->type) {
 		case RDSERVICE_SCREENSENDER: HandleScreenPacket(pkt->data, pkt->len); break;
-		default: PostQuitMessage(0);
+		default: plog("ignored packet with type %d\n", pkt->type); break;
 	}
 }
 
@@ -263,6 +263,92 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	case WM_USER:
 		UpdateSocket(wParam, lParam);
 		break;
+	case WM_KEYUP:
+		if (1) {
+			static int a = 0;
+			if (!a) do {
+				plog("send DOWNLOAD_REQUEST\n");
+				size_t datalen = 0;
+				size_t pktlen = sizeof(FileTransHdr) + datalen;
+				FileTransHdr *pkt = (FileTransHdr *) malloc(pktlen);
+				pkt->type = DOWNLOAD_REQUEST;
+				pkt->value = 0;
+				pkt->len = datalen;
+				SendPacket(RDSERVICE_FILETRANSFER, (char *)pkt, pktlen);
+				free(pkt);
+				a = 1;
+			} while (0);
+			else {
+				if (1) do {
+					plog("send SEND_RESPONSE\n");
+					size_t datalen = 0;
+					size_t pktlen = sizeof(FileTransHdr) + datalen;
+					FileTransHdr *pkt = (FileTransHdr *) malloc(pktlen);
+					pkt->type = SEND_RESPONSE;
+					pkt->value = 1;
+					pkt->len = datalen;
+					SendPacket(RDSERVICE_FILETRANSFER, (char *)pkt, pktlen);
+					free(pkt);
+				} while (0);
+				if (0) do {
+					plog("send TRANSFER_CANCEL\n");
+					size_t datalen = 0;
+					size_t pktlen = sizeof(FileTransHdr) + datalen;
+					FileTransHdr *pkt = (FileTransHdr *) malloc(pktlen);
+					pkt->type = TRANSFER_CANCEL;
+					pkt->value = 0;
+					pkt->len = datalen;
+					SendPacket(RDSERVICE_FILETRANSFER, (char *)pkt, pktlen);
+					free(pkt);
+				} while (0);
+			}
+		}
+		if (0) {
+			do {
+				size_t datalen = 5;
+				size_t pktlen = sizeof(FileTransHdr) + datalen;
+				FileTransHdr *pkt = (FileTransHdr *) malloc(pktlen);
+				pkt->type = SEND_REQUEST;
+				pkt->value = 100;
+				pkt->len = datalen;
+				strncpy(pkt->data, "1.txt", pkt->len);
+				SendPacket(RDSERVICE_FILETRANSFER, (char *)pkt, pktlen);
+				free(pkt);
+			} while (0);
+			do {
+				size_t datalen = 50;
+				size_t pktlen = sizeof(FileTransHdr) + datalen;
+				FileTransHdr *pkt = (FileTransHdr *) malloc(pktlen);
+				pkt->type = SEND_DATA;
+				pkt->value = 0;
+				pkt->len = datalen;
+				memset(pkt->data, 'A', pkt->len);
+				SendPacket(RDSERVICE_FILETRANSFER, (char *)pkt, pktlen);
+				free(pkt);
+			} while (0);
+			if (0) do {
+				size_t datalen = 0;
+				size_t pktlen = sizeof(FileTransHdr) + datalen;
+				FileTransHdr *pkt = (FileTransHdr *) malloc(pktlen);
+				pkt->type = TRANSFER_CANCEL;
+				pkt->value = 0;
+				pkt->len = datalen;
+				SendPacket(RDSERVICE_FILETRANSFER, (char *)pkt, pktlen);
+				free(pkt);
+			} while (0);
+			do {
+				size_t datalen = 50;
+				size_t pktlen = sizeof(FileTransHdr) + datalen;
+				FileTransHdr *pkt = (FileTransHdr *) malloc(pktlen);
+				pkt->type = SEND_DATA;
+				pkt->value = 0;
+				pkt->len = datalen;
+				memset(pkt->data, 'B', pkt->len);
+				SendPacket(RDSERVICE_FILETRANSFER, (char *)pkt, pktlen);
+				free(pkt);
+			} while (0);
+		}
+		break;
 	/*case WM_KEYUP:
 		do {
 			size_t pktlen = sizeof(struct CtrlPktHdr) + 1;
@@ -271,6 +357,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 			pkt->len = 1;
 			pkt->data[0] = 0x41;
 			SendPacket(RDSERVICE_CONTROLRECEIVER, (char *)pkt, pktlen);
+			free(pkt);
 		} while (0);
 		break;*/
     default:

@@ -12,6 +12,7 @@ RDFileTransfer::~RDFileTransfer()
 
 void RDFileTransfer::NotifyClose()
 {
+	PostMessage(WM_QUIT, 0, 0);
 }
 
 bool RDFileTransfer::CheckCancelPacket(MsgPacket *packet)
@@ -32,7 +33,11 @@ bool RDFileTransfer::CheckCancelPacketInRecvQueue()
 	FileTransHdr *pkt = (FileTransHdr *) packet->LockBuffer();
 	if (pkt->type == TRANSFER_CANCEL) {
 		packet->UnlockBuffer();
-		recvqueue->Get(&packet);
+		if (recvqueue->Get(&packet) == 0) {
+			delete packet;
+		} else {
+			assert(0);
+		}
 		plog("file transfer cancelled.\n");
 		return true;
 	} else {
@@ -65,10 +70,11 @@ bool RDFileTransfer::FileDialog(char *buf, size_t buf_size, int type)
 	ofn.lpstrFileTitle = NULL;
 	ofn.nMaxFileTitle = 0;
 	ofn.lpstrInitialDir = NULL;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 	if (type) {
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 		return !!GetOpenFileName(&ofn);
 	} else {
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
 		return !!GetSaveFileName(&ofn);
 	}
 }
@@ -86,9 +92,9 @@ void RDFileTransfer::RecvFileDoModal(FileTransHdr *initpkt, size_t len)
 
 	// get filename from packet
 	strncpy(filename, initpkt->data, initpkt->len);
-	filename[sizeof(filename) - 1] = 0;
-	char *pname = strchr(filename, '\\');
-	if (pname) memmove(filename, pname, strlen(pname) + 1);
+	filename[min(initpkt->len, sizeof(filename) - 1)] = 0;
+	char *pname = strrchr(filename, '\\');
+	if (pname) { pname++; memmove(filename, pname, strlen(pname) + 1); }
 
 	// prompt user
 	FILE *fp;
@@ -103,11 +109,20 @@ void RDFileTransfer::RecvFileDoModal(FileTransHdr *initpkt, size_t len)
 		return;
 	}
 
+	// send confirm packet
+	FileTransHdr confirmpkt;
+	confirmpkt.type = SEND_RESPONSE;
+	confirmpkt.value = 1; // confirm
+	confirmpkt.len = 0;
+	SendPacket(&confirmpkt, sizeof(confirmpkt));
+
+	// start recv file
 	plog("filename is %s\n", filename);
 	size_t recvlen = 0;
 	MsgPacket *packet = NULL;
 	while (1) {
 		if (recvqueue->Get(&packet) < 0) {
+			pmsg("transfer cancelled.\n");
 			packet = NULL;
 			break;
 		}
@@ -119,7 +134,7 @@ void RDFileTransfer::RecvFileDoModal(FileTransHdr *initpkt, size_t len)
 		FileTransHdr *pkt = (FileTransHdr *) packet->LockBuffer();
 		if (pkt->type != SEND_DATA) {
 			plog("invalid packet type %d during file receiving, ignored\n", pkt->type);
-		} else if (pkt->len + sizeof(FileTransHdr) != len) {
+		} else if (pkt->len + sizeof(FileTransHdr) != packet->GetBufferSize()) {
 			plog("invalid packet length, ignored.\n");
 		} else {
 			size_t r = fwrite(pkt->data, 1, pkt->len, fp);
@@ -148,10 +163,12 @@ void RDFileTransfer::SendFileDoModal()
 
 	// prompt user
 	FILE *fp;
-	if (!FileDialog(filename, sizeof(filename), 0) || !(fp = fopen(filename, "rb"))) {
+	if (!FileDialog(filename, sizeof(filename), 1) || !(fp = fopen(filename, "rb"))) {
 		plog("file select cancelled.\n");
 		return;
 	}
+	char *pname = strrchr(filename, '\\');
+	if (pname) pname++; else pname = filename;
 
 	// get file length
 	size_t filelen;
@@ -160,11 +177,12 @@ void RDFileTransfer::SendFileDoModal()
 	rewind(fp);
 
 	// send request packet
-	size_t reqpktlen = sizeof(FileTransHdr) + strlen(filename);
+	size_t reqpktlen = sizeof(FileTransHdr) + strlen(pname);
 	FileTransHdr *reqpkt = (FileTransHdr *) malloc(reqpktlen);
 	reqpkt->type = SEND_REQUEST;
 	reqpkt->value = filelen;
-	reqpkt->len = strlen(filename);
+	reqpkt->len = strlen(pname);
+	memcpy(reqpkt->data, pname, strlen(pname));
 	SendPacket(reqpkt, reqpktlen);
 	free(reqpkt); reqpkt = NULL;
 
@@ -190,6 +208,7 @@ void RDFileTransfer::SendFileDoModal()
 	}
 	if (packet) { delete packet; packet = NULL; }
 
+	size_t sentlen = 0;
 	// send file data
 	while (1) {
 		if (CheckCancelPacketInRecvQueue()) {
@@ -208,7 +227,11 @@ void RDFileTransfer::SendFileDoModal()
 		pkt->value = 0;
 		pkt->len = datalen;
 		memcpy(pkt->data, data, datalen);
+		SendPacket(pkt, pktlen);
+		free(pkt);
+		sentlen += datalen;
 		if (feof(fp)) {
+			assert(sentlen == filelen);
 			plog("file send OK!\n");
 			break;
 		}
@@ -222,9 +245,11 @@ void RDFileTransfer::DispatchPacket(FileTransHdr *pkt, size_t len)
 {
 	switch (pkt->type) {
 		case SEND_REQUEST:
+			plog("enter recv mode.\n");
 			RecvFileDoModal(pkt, len);
 			break;
 		case DOWNLOAD_REQUEST:
+			plog("enter send mode.\n");
 			SendFileDoModal();
 			break;
 		default:

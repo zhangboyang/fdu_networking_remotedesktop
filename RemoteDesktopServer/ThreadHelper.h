@@ -10,4 +10,5 @@ public:
 	virtual void ThreadProc() = 0;
 	void StartThread();
 	void WaitThread();
+	bool PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam);
 };

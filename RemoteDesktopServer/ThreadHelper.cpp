@@ -32,3 +32,8 @@ void ThreadHelper::WaitThread()
 		thread = NULL;
 	}
 }
+
+bool ThreadHelper::PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	return !!PostThreadMessage(GetThreadId(thread), Msg, wParam, lParam);
+}
