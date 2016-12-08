@@ -104,10 +104,11 @@ template <class T>
 class ProducerConsumerQueueMux {
 private:
 	int N;
+	int queueshift;
 	ProducerConsumerQueue<T> **queuearray;
 	HANDLE exitevent;
 public:
-	ProducerConsumerQueueMux(int N, int maxcount) : N(N)
+	ProducerConsumerQueueMux(int N, int maxcount) : N(N), queueshift(N)
 	{
 		queuearray = new ProducerConsumerQueue<T> *[N];
 		for (int i = 0; i < N; i++) {
@@ -137,18 +138,21 @@ public:
 	}
 	int Get(T *val)
 	{
+		queueshift = (queueshift + 1) % N * 0;
 		int ret;
 		BOOL bRet;
 		HANDLE *handlearray = new HANDLE[N + 1];
 		handlearray[0] = exitevent;
 		for (int i = 1; i <= N; i++) {
-			handlearray[i] = queuearray[i - 1]->fill;
+			handlearray[i] = queuearray[(i - 1 + queueshift) % N]->fill;
+			//printf("handlearray[%d]=%p\n", i, handlearray[i]); 
+			//printf("queuearray[%d]=%p\n", i-1, queuearray[i-1]->fill);
 		}
 		DWORD result = WaitForMultipleObjects(N + 1, handlearray, FALSE, INFINITE);
 		assert(WAIT_OBJECT_0 <= result && result <= WAIT_OBJECT_0 + N);
 		if (result == WAIT_OBJECT_0) { ret = -3; goto done; }
 		
-		int id = result - WAIT_OBJECT_0 - 1;
+		int id = ((int)(result - WAIT_OBJECT_0 - 1) + queueshift) % N;
 		EnterCriticalSection(&queuearray[id]->mutex);
 		*val = queuearray[id]->queue.front();
 		queuearray[id]->queue.pop();

@@ -142,6 +142,7 @@ void RDFileTransfer::RecvFileDoModal(FileTransHdr *initpkt, size_t len)
 				pmsg("error during file writing, data might be lost.\n");
 			} else {
 				recvlen += r;
+				pmsg("data received %.2f%% (%d/%d)\n", (double) recvlen / filelen, (int) recvlen, (int) filelen);
 			}
 		}
 		packet->UnlockBuffer();
@@ -230,6 +231,7 @@ void RDFileTransfer::SendFileDoModal()
 		SendPacket(pkt, pktlen);
 		free(pkt);
 		sentlen += datalen;
+		pmsg("data sent %.2f%% (%d/%d)\n", (double) sentlen / filelen, (int) sentlen, (int) filelen);
 		if (feof(fp)) {
 			assert(sentlen == filelen);
 			plog("file send OK!\n");
