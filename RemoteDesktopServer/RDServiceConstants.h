@@ -5,6 +5,7 @@ enum {
 	// lower value means higher priority
 	RDSERVICE_SCREENSENDER,
 	RDSERVICE_CONTROLRECEIVER,
+	RDSERVICE_FILETRANSFER,
 
 	RDSERVICE_MAX, // EOF
 
@@ -41,6 +42,7 @@ struct ScrPktHdr {
 
 
 
+
 enum {
 	CTRLPKT_PADDING,
 	CTRLPKT_MOUSE_MOVE,
@@ -55,3 +57,22 @@ struct CtrlPktHdr {
 	int len;
 	char data[0];
 };
+
+
+
+
+
+enum {
+	SEND_REQUEST,
+	SEND_RESPONSE,
+	SEND_DATA,
+	TRANSFER_CANCEL,
+	DOWNLOAD_REQUEST,
+};
+struct FileTransHdr {
+	int type;
+	unsigned value;
+	int len;
+	char data[0];
+};
+#define FILETRANS_MAXDATA (MAX_MSGPACKETSIZE_SOFT - sizeof(FileTransHdr))

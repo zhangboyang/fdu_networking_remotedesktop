@@ -87,6 +87,17 @@ public:
 		assert(bRet);
 		return 0;
 	}
+	int PeekWithoutRemove(T *val)
+	{
+		int ret = -1;
+		EnterCriticalSection(&mutex);
+		if (!queue.empty()) {
+			*val = queue.front();
+			ret = 0;
+		}
+		LeaveCriticalSection(&mutex);
+		return ret;
+	}
 };
 
 template <class T>

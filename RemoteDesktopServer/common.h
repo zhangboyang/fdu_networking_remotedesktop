@@ -19,6 +19,7 @@
 #include "RDServiceFactory.h"
 #include "RDScreenSender.h"
 #include "RDControlReceiver.h"
+#include "RDFileTransfer.h"
 
 // TCPKit
 #include "MsgPacket.h"

@@ -250,6 +250,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\RDFileTransfer.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\RDScreenSender.cpp"
 					>
 				</File>
@@ -309,6 +313,10 @@
 				>
 				<File
 					RelativePath=".\RDControlReceiver.h"
+					>
+				</File>
+				<File
+					RelativePath=".\RDFileTransfer.h"
 					>
 				</File>
 				<File

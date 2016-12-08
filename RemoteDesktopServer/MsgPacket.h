@@ -15,6 +15,7 @@ public:
 	};
 	void Dump();
 	int LoadHeader(const raw_header *phdr);
+	void LoadData(const char *data, size_t len, int type);
 	void GetRawData(const char **pbuf, size_t *len);
 	void FreeBuffer();
 	void AllocBuffer(size_t len, int type);

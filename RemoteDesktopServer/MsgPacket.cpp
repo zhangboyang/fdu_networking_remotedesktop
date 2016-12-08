@@ -87,3 +87,11 @@ int MsgPacket::GetType()
 {
 	return ((raw_header *)raw_data)->type;
 }
+
+void MsgPacket::LoadData(const char *data, size_t len, int type)
+{
+	AllocBuffer(len, type);
+	char *pbuf = LockBuffer();
+	memcpy(pbuf, data, len);
+	UnlockBuffer();
+}
