@@ -12,12 +12,9 @@ enum {
 	RDSERVICE_PASSWORD = -1, // the is a special packet type
 };
 
-// password
-#define rdpsw "123456"
-
 
 #define MAX_MSGPACKETSIZE_HARD 16384 // datasize
-#define MAX_MSGPACKETSIZE_SOFT 1300
+#define MAX_MSGPACKETSIZE_SOFT 4000
 
 #define MAX_QUEUED_PACKET 10
 

@@ -263,7 +263,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	case WM_USER:
 		UpdateSocket(wParam, lParam);
 		break;
-	case WM_KEYUP:
+	/*case WM_KEYUP:
 		if (1) {
 			static int a = 0;
 			if (!a) do {
@@ -348,7 +348,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 				free(pkt);
 			} while (0);
 		}
-		break;
+		break;*/
 	/*case WM_KEYUP:
 		do {
 			size_t pktlen = sizeof(struct CtrlPktHdr) + 1;
@@ -372,7 +372,7 @@ int main()
 {
 	char nodename[MAXLINE];
 	char servname[MAXLINE] = "1223";
-
+	char psw[] = "123456";
 	scanf(MAXLINEFMT, nodename);
 	
 	// init
@@ -455,7 +455,6 @@ int main()
 	WSAAsyncSelect(clisocket, hWnd, WM_USER, FD_READ | FD_WRITE | FD_CLOSE);
 
 	// send password
-	char psw[] = "123456";
 	SendPacket(RDSERVICE_PASSWORD, psw, strlen(psw));
 
 	// show windows and pump message

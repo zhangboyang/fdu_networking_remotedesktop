@@ -2,6 +2,8 @@
 
 #define MAXLINEFMT "%" TOSTR(MAXLINE) "s"
 
+extern char rdpsw[];
+
 #include "misc.h"
 
 #include "CMiniLZO.h"
