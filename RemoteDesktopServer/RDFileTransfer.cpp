@@ -119,16 +119,15 @@ void RDFileTransfer::RecvFileDoModal(FileTransHdr *initpkt, size_t len)
 	// start recv file
 	plog("filename is %s\n", filename);
 	size_t recvlen = 0;
+	double lastpercent = -1, recvpercent;
 	MsgPacket *packet = NULL;
 	while (1) {
 		if (recvqueue->Get(&packet) < 0) {
-			pmsg("transfer cancelled.\n");
 			packet = NULL;
 			break;
 		}
 		if (CheckCancelPacket(packet)) {
-			fclose(fp); fp = NULL;
-			_unlink(filename);
+			pmsg("transfer cancelled.\n");
 			break;
 		}
 		FileTransHdr *pkt = (FileTransHdr *) packet->LockBuffer();
@@ -142,7 +141,11 @@ void RDFileTransfer::RecvFileDoModal(FileTransHdr *initpkt, size_t len)
 				pmsg("error during file writing, data might be lost.\n");
 			} else {
 				recvlen += r;
-				pmsg("data received %.2f%% (%d/%d)\n", (double) recvlen / filelen, (int) recvlen, (int) filelen);
+				recvpercent = 100.0 * recvlen / filelen;
+				if (floor(lastpercent) != floor(recvpercent)) {
+					pmsg("data received %.2f%% (%d/%d)\n", recvpercent, (int) recvlen, (int) filelen);
+				}
+				lastpercent = recvpercent;
 			}
 		}
 		packet->UnlockBuffer();
@@ -156,6 +159,7 @@ void RDFileTransfer::RecvFileDoModal(FileTransHdr *initpkt, size_t len)
 	}
 	if (packet) delete packet;
 	if (fp) fclose(fp);
+	if (recvlen < filelen) _unlink(filename);
 }
 
 void RDFileTransfer::SendFileDoModal()
@@ -208,12 +212,12 @@ void RDFileTransfer::SendFileDoModal()
 		delete packet; packet = NULL;
 	}
 	if (packet) { delete packet; packet = NULL; }
-
+	double lastpercent = -1, sentpercent;
 	size_t sentlen = 0;
 	// send file data
 	while (1) {
 		if (CheckCancelPacketInRecvQueue()) {
-			plog("send operation cancelled.\n");
+			pmsg("send operation cancelled.\n");
 			break;
 		}
 		char data[FILETRANS_MAXDATA];
@@ -231,8 +235,12 @@ void RDFileTransfer::SendFileDoModal()
 		SendPacket(pkt, pktlen);
 		free(pkt);
 		sentlen += datalen;
-		pmsg("data sent %.2f%% (%d/%d)\n", (double) sentlen / filelen, (int) sentlen, (int) filelen);
-		if (feof(fp)) {
+		sentpercent = 100.0 * sentlen / filelen;
+		if (floor(sentpercent) != floor(lastpercent)) {
+			pmsg("data sent %.2f%% (%d/%d)\n", sentpercent, (int) sentlen, (int) filelen);
+		}
+		lastpercent = sentpercent;
+		if (sentlen >= filelen || feof(fp)) {
 			assert(sentlen == filelen);
 			plog("file send OK!\n");
 			break;

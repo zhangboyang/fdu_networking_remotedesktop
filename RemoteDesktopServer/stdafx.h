@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cassert>
+#include <cmath>
 
 // C++ headers
 #include <algorithm>
